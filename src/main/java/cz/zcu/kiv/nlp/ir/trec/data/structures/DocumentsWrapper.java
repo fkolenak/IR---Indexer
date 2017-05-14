@@ -46,6 +46,20 @@ public class DocumentsWrapper {
         totalTokens++;
     }
 
+    public List<Position> getDocumentPositionsInfo(String docId) {
+        return documents.get(docId);
+    }
+
+    public int getNumberOfDocuments(){
+        return documents.size();
+    }
+
+    public int getNumberOfTokensInDocument(String docId){
+        return documents.get(docId).size();
+    }
+
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -67,4 +81,6 @@ public class DocumentsWrapper {
                 .append(documents)
                 .toHashCode();
     }
+
+
 }

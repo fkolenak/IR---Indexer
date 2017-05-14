@@ -41,12 +41,15 @@ public class InvertedIndex {
 
     }
 
-    public void setDocLength(String docId, int numStrings) {
-        if(docId == null){
-            return;
-        }
-        if(documents.containsKey(docId)){
-            documents.put(docId, numStrings);
-        }
+    public DocumentsWrapper getDocuments(String token){
+        return index.get(token);
+    }
+
+    public int getTotalNumberOfDocuments(){
+        return documents.size();
+    }
+
+    public int getTokensInDocument(String docId){
+        return documents.get(docId);
     }
 }
