@@ -64,7 +64,8 @@ public class TestTrecEval {
             e.printStackTrace();
         }
         log.info("Documents: " + documents.size());
-
+        log.info("Indexing documents.");
+        index.index(documents);
 
         List<String> lines = new ArrayList<String>();
 
