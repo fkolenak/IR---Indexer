@@ -1,6 +1,7 @@
 package cz.zcu.kiv.nlp.ir.trec.data.structures;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 /**
@@ -32,13 +33,20 @@ public class InvertedIndex {
         // Index the token
         DocumentsWrapper wrapper = index.get(token);
         if(wrapper == null){
-            wrapper = new DocumentsWrapper(documentId,position);
+            wrapper = new DocumentsWrapper(documentId);
             index.put(token,wrapper);
         } else {
             wrapper.addEntry(documentId,position);
         }
 
 
+    }
+
+    public void calculateWeights() {
+        for (String token: index.keySet()) {
+            DocumentsWrapper doc = index.get(token);
+            doc.calculateWeights(this);
+        }
     }
 
     public DocumentsWrapper getDocuments(String token){
@@ -52,4 +60,6 @@ public class InvertedIndex {
     public int getTokensInDocument(String docId){
         return documents.get(docId);
     }
+
+
 }

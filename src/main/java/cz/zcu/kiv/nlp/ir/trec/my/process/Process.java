@@ -15,14 +15,22 @@ import java.io.StringReader;
 
 
 /**
+ * Class that processes given data and stores it in index
  * Created by japan on 13-May-17.
  */
 public class Process {
-    private static Logger log = Logger.getLogger(Process.class);
+    private static final Logger log = Logger.getLogger(Process.class);
 
+    /**
+     * Czech analyzer. Lower case, stemming, stop words removing
+     */
     public static final CzechAnalyzer czechAnalyzer = new CzechAnalyzer();
 
-
+    /**
+     * Parses document and stores tokens in index
+     * @param doc document to store
+     * @param invertedIndex index itself
+     */
     public void parseAndIndex(Document doc, InvertedIndex invertedIndex){
         if(invertedIndex == null){
             return;
@@ -44,7 +52,7 @@ public class Process {
                 Position position = new Position(index,startOffset,endOffset);
 
                 invertedIndex.addEntry(token, doc.getId(),position);
-                log.info("Token["+ index + "] : " + token);
+                //log.info("Token["+ index + "] : " + token);
             }
             tokenStream.end();
             tokenStream.close();

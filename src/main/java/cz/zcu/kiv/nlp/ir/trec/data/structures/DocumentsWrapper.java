@@ -1,32 +1,31 @@
 package cz.zcu.kiv.nlp.ir.trec.data.structures;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import cz.zcu.kiv.nlp.ir.trec.my.Weighting.IWeight;
+import cz.zcu.kiv.nlp.ir.trec.my.Weighting.WeightTF_IDF;
+
+import java.util.*;
 
 /**
  * Created by japan on 14-May-17.
  */
 public class DocumentsWrapper {
-
+    IWeight weight;
     /**
      * Total tokens across the documents
      */
     private int totalTokens = 0;
     /**
-     * Hash map {DocID, Positions in document}
-     * list of positions in that document is also frequency of the word in document
+     * Hash map {DocID, term frequency}
+     *
      */
-    private final HashMap<String, List<Position>> documents = new LinkedHashMap<String,  List<Position>>();
+    private final HashMap<String, Integer> documents = new LinkedHashMap<String,  Integer>();
+    private final List<WeightedDocument> weightedDocuments = new ArrayList<WeightedDocument>();
 
-    public DocumentsWrapper(String docId, Position position){
-        if(position != null){
+    // TODO documents as vectors
+    public DocumentsWrapper(String docId){
             totalTokens++;
-            List<Position> positions = new ArrayList<Position>();
-            positions.add(position);
-            documents.put(docId,positions);
-        }
+            documents.put(docId,1);
+            weight = new WeightTF_IDF();
     }
 
 
@@ -34,28 +33,40 @@ public class DocumentsWrapper {
         if(documentId == null || position == null){
             return;
         }
-        List<Position> list;
-        if(!documents.containsKey(documentId)){
-            list = new ArrayList<Position>();
-            list.add(position);
-        } else {
-            list = documents.get(documentId);
-            list.add(position);
+        Integer tf = 1;
+        if(documents.containsKey(documentId)){
+            tf += documents.get(documentId);
         }
-        documents.put(documentId,list);
+        documents.put(documentId,tf);
         totalTokens++;
     }
 
-    public List<Position> getDocumentPositionsInfo(String docId) {
-        return documents.get(docId);
-    }
+
 
     public int getNumberOfDocuments(){
         return documents.size();
     }
 
     public int getNumberOfTokensInDocument(String docId){
-        return documents.get(docId).size();
+        return documents.get(docId);
+    }
+
+    public void calculateWeights(InvertedIndex index){
+
+        for(String docId : documents.keySet()) {
+            float value = weight.getWeight(this, docId,index);
+            WeightedDocument doc = new WeightedDocument(docId,value);
+            weightedDocuments.add(doc);
+        }
+        weightedDocuments.sort((o1, o2) -> {
+            if(o1.getWeight() < o2.getWeight() ){
+                return 1;
+            }
+            if(o1.getWeight() > o2.getWeight()){
+                return -1;
+            }
+            return 0;
+        });
     }
 
 
@@ -81,6 +92,8 @@ public class DocumentsWrapper {
                 .append(documents)
                 .toHashCode();
     }
+
+
 
 
 }

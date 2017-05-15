@@ -70,6 +70,7 @@ public class TestTrecEval {
         List<String> lines = new ArrayList<String>();
 
         for (Topic t : topics) {
+
             List<Result> resultHits = index.search(t.getTitle() + " " + t.getDescription());
 
             Comparator<Result> cmp = new Comparator<Result>() {
@@ -100,34 +101,36 @@ public class TestTrecEval {
     }
 
     private static String runTrecEval(String predictedFile) throws IOException {
-
-        String commandLine = "./trec_eval.8.1/./trec_eval" +
-                " ./trec_eval.8.1/czech" +
-                " " + predictedFile;
-
-        System.out.println(commandLine);
-        Process process = Runtime.getRuntime().exec(commandLine);
-
-        BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-
-        String trecEvalOutput;
-        StringBuilder output = new StringBuilder("TREC EVAL output:\n");
-        for (String line; (line = stdout.readLine()) != null; ) output.append(line).append("\n");
-        trecEvalOutput = output.toString();
-        System.out.println(trecEvalOutput);
-
-        int exitStatus = 0;
+        String trecEvalOutput = "";
         try {
-            exitStatus = process.waitFor();
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
+            String commandLine = "./trec_eval.8.1/./trec_eval" +
+                    " ./trec_eval.8.1/czech" +
+                    " " + predictedFile;
+
+            System.out.println(commandLine);
+            Process process = Runtime.getRuntime().exec(commandLine);
+
+            BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            StringBuilder output = new StringBuilder("TREC EVAL output:\n");
+            for (String line; (line = stdout.readLine()) != null; ) output.append(line).append("\n");
+            trecEvalOutput = output.toString();
+            System.out.println(trecEvalOutput);
+
+            int exitStatus = 0;
+            try {
+                exitStatus = process.waitFor();
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+            System.out.println(exitStatus);
+
+            stdout.close();
+            stderr.close();
+        } catch(Exception e){
+            log.trace("Cannot run eval"  + e.getMessage());
         }
-        System.out.println(exitStatus);
-
-        stdout.close();
-        stderr.close();
-
         return trecEvalOutput;
     }
 }

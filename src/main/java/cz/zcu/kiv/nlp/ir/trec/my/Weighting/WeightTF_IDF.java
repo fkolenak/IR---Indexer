@@ -27,20 +27,39 @@ public class WeightTF_IDF implements IWeight{
         return  (float) (tf * idf);
     }
 
+
     /**
-     * Gets idf part of the equation
+     * Gets TF-IDF weight
+     * @param documentsWrapper doc wrapper
+     * @param docId document containing token
+     * @param index index itself
+     * @return tf-idf weight
+     */
+    public float getWeight(DocumentsWrapper documentsWrapper, String docId, InvertedIndex index){
+
+        double idf = getIdf(documentsWrapper, index);
+        double tf = getTf(documentsWrapper,index,docId);
+
+        return  (float) (tf * idf);
+    }
+
+    /**
+     * Gets Inverse Document Frequency part of the equation
      * @param documentsWrapper document wrapper
      * @param index index itself
      * @return idf equation part
      */
     private double getIdf(DocumentsWrapper documentsWrapper, InvertedIndex index){
+        if(documentsWrapper == null){
+            return 1.0;
+        }
         int numberOfDocuments = index.getTotalNumberOfDocuments();
         int numberOfDocumentsThatContainToken = documentsWrapper.getNumberOfDocuments();
-        return Math.log(numberOfDocuments / numberOfDocumentsThatContainToken);
+        return Math.log(((double)numberOfDocuments) / numberOfDocumentsThatContainToken);
     }
 
     /**
-     * Gets the tf part of the equation
+     * Gets the Term Frequency part of the equation
      * @param documentsWrapper document wrapper
      * @param index index itself
      * @param documentId document id
@@ -49,8 +68,7 @@ public class WeightTF_IDF implements IWeight{
     private double getTf(DocumentsWrapper documentsWrapper, InvertedIndex index, String documentId){
         int tokenOccurrenceInDocument = documentsWrapper.getNumberOfTokensInDocument(documentId);
         int tokensInDocument = index.getTokensInDocument(documentId);
-
-        return 1 + Math.log(tokenOccurrenceInDocument/tokensInDocument);
+        return ((double)tokenOccurrenceInDocument)/tokensInDocument;
     }
 
 }
