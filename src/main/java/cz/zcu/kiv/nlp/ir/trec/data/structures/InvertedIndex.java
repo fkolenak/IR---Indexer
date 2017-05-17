@@ -18,8 +18,8 @@ public class InvertedIndex {
     private final  HashMap<String,Integer> documents = new LinkedHashMap<String,Integer>();
 
 
-    public void addEntry(String token, String documentId, Position position){
-        if(token == null || documentId == null || position == null){
+    public void addEntry(String token, String documentId){
+        if(token == null || documentId == null ){
             return;
         }
         // Add number of tokens in document
@@ -36,7 +36,7 @@ public class InvertedIndex {
             wrapper = new DocumentsWrapper(documentId);
             index.put(token,wrapper);
         } else {
-            wrapper.addEntry(documentId,position);
+            wrapper.addEntry(documentId);
         }
 
 
@@ -49,9 +49,10 @@ public class InvertedIndex {
         }
     }
 
-    public DocumentsWrapper getDocuments(String token){
+    public DocumentsWrapper getDocumentWrapper(String token){
         return index.get(token);
     }
+
 
     public int getTotalNumberOfDocuments(){
         return documents.size();

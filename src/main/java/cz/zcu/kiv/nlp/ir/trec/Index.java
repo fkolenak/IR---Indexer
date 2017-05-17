@@ -1,15 +1,16 @@
 package cz.zcu.kiv.nlp.ir.trec;
 
 import cz.zcu.kiv.nlp.ir.trec.data.Document;
+import cz.zcu.kiv.nlp.ir.trec.data.ResultImpl;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.InvertedIndex;
 import cz.zcu.kiv.nlp.ir.trec.data.Result;
+import cz.zcu.kiv.nlp.ir.trec.data.structures.WeightedDocument;
 import cz.zcu.kiv.nlp.ir.trec.my.process.Process;
+import cz.zcu.kiv.nlp.ir.trec.my.query.QueryResolver;
 import org.apache.log4j.Logger;
+import org.apache.lucene.search.BooleanQuery;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author tigi
@@ -22,10 +23,12 @@ public class Index implements Indexer, Searcher {
     private InvertedIndex index;
 
     private Process preprocessing = new Process();
+    private QueryResolver queryResolver;
 
     public Index(){
         documents = new LinkedHashMap<String, Document>();
         index = new InvertedIndex();
+        queryResolver = new QueryResolver(index);
     }
 
 
@@ -50,13 +53,9 @@ public class Index implements Indexer, Searcher {
     public List<Result> search(String query) {
         List<Result> results = new ArrayList<Result>();
 
+        BooleanQuery booleanQuery = preprocessing.parseQuery(query);
 
-
-
-
-
-
-
+        HashMap<String, WeightedDocument>  documents = queryResolver.getDocuments(booleanQuery);
 
 
 

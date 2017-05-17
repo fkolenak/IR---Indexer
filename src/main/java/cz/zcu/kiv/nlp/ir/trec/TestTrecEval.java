@@ -71,7 +71,8 @@ public class TestTrecEval {
 
         for (Topic t : topics) {
 
-            List<Result> resultHits = index.search(t.getTitle() + " " + t.getDescription());
+            //List<Result> resultHits = index.search(t.getTitle() + " " + t.getDescription());
+            List<Result> resultHits = index.search(t.getTitle());
 
             Comparator<Result> cmp = new Comparator<Result>() {
                 public int compare(Result o1, Result o2) {

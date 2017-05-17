@@ -19,7 +19,7 @@ public class WeightTF_IDF implements IWeight{
      * @return tf-idf weight
      */
     public float getWeight(String token, String docId, InvertedIndex index){
-        DocumentsWrapper documentsWrapper = index.getDocuments(token);
+        DocumentsWrapper documentsWrapper = index.getDocumentWrapper(token);
 
         double idf = getIdf(documentsWrapper, index);
         double tf = getTf(documentsWrapper,index,docId);

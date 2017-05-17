@@ -18,26 +18,27 @@ public class DocumentsWrapper {
      * Hash map {DocID, term frequency}
      *
      */
-    private final HashMap<String, Integer> documents = new LinkedHashMap<String,  Integer>();
-    private final List<WeightedDocument> weightedDocuments = new ArrayList<WeightedDocument>();
+    private final HashMap<String, WeightedDocument> documents = new LinkedHashMap<String,  WeightedDocument>();
+    //private final List<WeightedDocument> weightedDocuments = new ArrayList<WeightedDocument>();
 
     // TODO documents as vectors
     public DocumentsWrapper(String docId){
             totalTokens++;
-            documents.put(docId,1);
+            documents.put(docId,new WeightedDocument());
             weight = new WeightTF_IDF();
     }
 
 
-    public void addEntry(String documentId, Position position) {
-        if(documentId == null || position == null){
+    public void addEntry(String documentId) {
+        if(documentId == null){
             return;
         }
-        Integer tf = 1;
         if(documents.containsKey(documentId)){
-            tf += documents.get(documentId);
+            WeightedDocument doc = documents.get(documentId);
+            doc.setTotalOccurence(doc.getTotalOccurence());
+            return;
         }
-        documents.put(documentId,tf);
+        documents.put(documentId,new WeightedDocument(1));
         totalTokens++;
     }
 
@@ -48,17 +49,18 @@ public class DocumentsWrapper {
     }
 
     public int getNumberOfTokensInDocument(String docId){
-        return documents.get(docId);
+        return documents.get(docId).getTotalOccurence();
     }
 
     public void calculateWeights(InvertedIndex index){
 
         for(String docId : documents.keySet()) {
             float value = weight.getWeight(this, docId,index);
-            WeightedDocument doc = new WeightedDocument(docId,value);
-            weightedDocuments.add(doc);
+            WeightedDocument w = documents.get(docId);
+            w.setWeight(value);
+            documents.put(docId,w);
         }
-        weightedDocuments.sort((o1, o2) -> {
+        /*weightedDocuments.sort((o1, o2) -> {
             if(o1.getWeight() < o2.getWeight() ){
                 return 1;
             }
@@ -66,7 +68,7 @@ public class DocumentsWrapper {
                 return -1;
             }
             return 0;
-        });
+        });*/
     }
 
 
@@ -94,6 +96,11 @@ public class DocumentsWrapper {
     }
 
 
+    public HashMap<String, WeightedDocument> getDocuments() {
+        return documents;
+    }
 
-
+    public Collection<WeightedDocument> getDocumentIds() {
+        return new ArrayList<>(documents.values());
+    }
 }

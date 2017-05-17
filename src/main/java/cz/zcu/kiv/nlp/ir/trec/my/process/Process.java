@@ -2,16 +2,18 @@ package cz.zcu.kiv.nlp.ir.trec.my.process;
 
 import cz.zcu.kiv.nlp.ir.trec.data.Document;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.InvertedIndex;
-import cz.zcu.kiv.nlp.ir.trec.data.structures.Position;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.cz.CzechAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.*;
-
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.TermQuery;
 
 import java.io.IOException;
 import java.io.StringReader;
-
 
 
 /**
@@ -37,27 +39,40 @@ public class Process {
         }
         try {
             TokenStream tokenStream = czechAnalyzer.tokenStream(null, new StringReader(doc.getText()));
-            tokenStream.addAttribute(PositionIncrementAttribute.class);
-            tokenStream.addAttribute(OffsetAttribute.class);
+            //tokenStream.addAttribute(PositionIncrementAttribute.class);
+            //tokenStream.addAttribute(OffsetAttribute.class);
 
             tokenStream.reset();
-            int index = -1;
             while (tokenStream.incrementToken()) {
 
                 String token = (tokenStream.getAttribute(CharTermAttribute.class).toString());
-                index += (tokenStream.getAttribute(PositionIncrementAttribute.class)).getPositionIncrement();
-                int startOffset = (tokenStream.getAttribute(OffsetAttribute.class)).startOffset();
-                int endOffset = (tokenStream.getAttribute(OffsetAttribute.class)).endOffset();
+                invertedIndex.addEntry(token, doc.getId());
+                //index += (tokenStream.getAttribute(PositionIncrementAttribute.class)).getPositionIncrement();
+                //int startOffset = (tokenStream.getAttribute(OffsetAttribute.class)).startOffset();
+                //int endOffset = (tokenStream.getAttribute(OffsetAttribute.class)).endOffset();
 
-                Position position = new Position(index,startOffset,endOffset);
-
-                invertedIndex.addEntry(token, doc.getId(),position);
-                //log.info("Token["+ index + "] : " + token);
             }
             tokenStream.end();
             tokenStream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public BooleanQuery parseQuery(String query) {
+        if(query.split(" ").length == 1){
+            query += " " + query;
+        }
+
+
+        QueryParser parser = new QueryParser("",czechAnalyzer);
+        parser.setDefaultOperator(QueryParser.Operator.OR);
+        try {
+            return(BooleanQuery) parser.parse(query);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

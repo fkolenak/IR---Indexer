@@ -5,20 +5,13 @@ package cz.zcu.kiv.nlp.ir.trec.data.structures;
  */
 public class WeightedDocument {
 
-    private String docId;
     private float weight;
+    private int totalOccurence = 1;
 
-    public WeightedDocument(String docId, float weight) {
-        this.docId = docId;
-        this.weight = weight;
-    }
+    public WeightedDocument(){}
 
-    public String getDocId() {
-        return docId;
-    }
-
-    public void setDocId(String docId) {
-        this.docId = docId;
+    public WeightedDocument(int totalOccurence) {
+        this.totalOccurence = totalOccurence;
     }
 
     public float getWeight() {
@@ -29,5 +22,11 @@ public class WeightedDocument {
         this.weight = weight;
     }
 
+    public int getTotalOccurence() {
+        return totalOccurence;
+    }
 
+    public void setTotalOccurence(int totalOccurence) {
+        this.totalOccurence = totalOccurence;
+    }
 }
