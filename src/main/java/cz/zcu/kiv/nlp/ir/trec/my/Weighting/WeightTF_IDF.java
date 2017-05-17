@@ -94,12 +94,20 @@ public class WeightTF_IDF implements IWeight{
                 instances.put(token, 1f);
             }
         }
-
+        float total = 0;
         for(String key : instances.keySet()){
             double idf = getQueryTermIdf(key,index);
             double tf = getQueryTermTf(instances.get(key),instances.size());
-            instances.put(key,(float) (tf*idf));
+            float value = (float) (tf*idf);
+            total += value;
+            instances.put(key,value);
         }
+        // Normalize
+        for(String key : instances.keySet()){
+            instances.put(key,instances.get(key)/total);
+        }
+
+
         return instances;
     }
 

@@ -28,7 +28,7 @@ public class Index implements Indexer, Searcher {
     private Process preprocessing = new Process();
     private QueryResolver queryResolver;
 
-    private static int MAX_RESULTS = 10000;
+    private static int MAX_RESULTS = 1000;
 
     public Index(){
         documents = new LinkedHashMap<String, Document>();

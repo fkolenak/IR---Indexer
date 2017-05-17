@@ -52,10 +52,7 @@ public class ResultsHelper {
         // Unnecesary but why not
         docLength = Math.abs(docLength);
 
-        // Also shouldn't happen but who knows
-        if(queryLength <= 0 || docLength <= 0){
-            return -99;
-        }
+        // Its normalized so no more math required
         return dot;
         //return (float) (dot / ((Math.sqrt(queryLength) * Math.sqrt(docLength))));
     }

@@ -54,12 +54,25 @@ public class DocumentsWrapper {
 
     public void calculateWeights(InvertedIndex index){
 
+        float total = 0;
         for(String docId : documents.keySet()) {
             float value = weight.getWeight(this, docId,index);
+            total += value;
             WeightedDocument w = documents.get(docId);
             w.setWeight(value);
             documents.put(docId,w);
         }
+
+        // Normalize
+        for(String docId : documents.keySet()) {
+
+            WeightedDocument w = documents.get(docId);
+            w.setWeight(w.getWeight()/total);
+            documents.put(docId,w);
+        }
+
+
+
         /*weightedDocuments.sort((o1, o2) -> {
             if(o1.getWeight() < o2.getWeight() ){
                 return 1;
