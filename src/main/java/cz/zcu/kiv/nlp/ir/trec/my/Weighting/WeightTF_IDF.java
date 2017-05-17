@@ -3,6 +3,10 @@ package cz.zcu.kiv.nlp.ir.trec.my.Weighting;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.DocumentsWrapper;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.InvertedIndex;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 
 /**
  * Class that implements weight interface.
@@ -70,5 +74,34 @@ public class WeightTF_IDF implements IWeight{
         int tokensInDocument = index.getTokensInDocument(documentId);
         return ((double)tokenOccurrenceInDocument)/tokensInDocument;
     }
+
+    private double getQueryTermIdf(String token, InvertedIndex index){
+        DocumentsWrapper documentsWrapper = index.getDocumentWrapper(token);
+       return getIdf(documentsWrapper, index);
+    }
+
+    private double getQueryTermTf(Float termFrequency, int totalTerms ){
+        return termFrequency/totalTerms;
+    }
+
+    public HashMap<String,Float> getQueryWeights(List<String> tokens , InvertedIndex index){
+        HashMap<String,Float> instances = new LinkedHashMap<>();
+
+        for(String token : tokens){
+            if(instances.containsKey(token)){
+                instances.put(token, instances.get(token) + 1);
+            } else {
+                instances.put(token, 1f);
+            }
+        }
+
+        for(String key : instances.keySet()){
+            double idf = getQueryTermIdf(key,index);
+            double tf = getQueryTermTf(instances.get(key),instances.size());
+            instances.put(key,(float) (tf*idf));
+        }
+        return instances;
+    }
+
 
 }

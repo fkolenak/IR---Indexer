@@ -43,9 +43,9 @@ public class TestTrecEval {
     }
 
     public static void main(String args[]) throws IOException {
+
         configureLogger();
 
-//        todo constructor
         Index index = new Index();
 
         List<Topic> topics = SerializedDataHelper.loadTopic(new File(OUTPUT_DIR + "/topicData.bin"));

@@ -35,7 +35,7 @@ public class DocumentsWrapper {
         }
         if(documents.containsKey(documentId)){
             WeightedDocument doc = documents.get(documentId);
-            doc.setTotalOccurence(doc.getTotalOccurence());
+            doc.setTotalOccurence(doc.getTotalOccurence() + 1);
             return;
         }
         documents.put(documentId,new WeightedDocument(1));
@@ -102,5 +102,9 @@ public class DocumentsWrapper {
 
     public Collection<WeightedDocument> getDocumentIds() {
         return new ArrayList<>(documents.values());
+    }
+
+    public WeightedDocument getDocument(String docId) {
+        return documents.get(docId);
     }
 }

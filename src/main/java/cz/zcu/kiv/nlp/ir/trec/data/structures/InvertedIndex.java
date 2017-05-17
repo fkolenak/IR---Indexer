@@ -34,11 +34,10 @@ public class InvertedIndex {
         DocumentsWrapper wrapper = index.get(token);
         if(wrapper == null){
             wrapper = new DocumentsWrapper(documentId);
-            index.put(token,wrapper);
         } else {
             wrapper.addEntry(documentId);
         }
-
+        index.put(token,wrapper);
 
     }
 
@@ -61,6 +60,7 @@ public class InvertedIndex {
     public int getTokensInDocument(String docId){
         return documents.get(docId);
     }
+
 
 
 }

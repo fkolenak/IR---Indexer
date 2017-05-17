@@ -5,8 +5,11 @@ import cz.zcu.kiv.nlp.ir.trec.data.ResultImpl;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.InvertedIndex;
 import cz.zcu.kiv.nlp.ir.trec.data.Result;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.WeightedDocument;
+import cz.zcu.kiv.nlp.ir.trec.my.Weighting.IWeight;
+import cz.zcu.kiv.nlp.ir.trec.my.Weighting.WeightTF_IDF;
 import cz.zcu.kiv.nlp.ir.trec.my.process.Process;
 import cz.zcu.kiv.nlp.ir.trec.my.query.QueryResolver;
+import cz.zcu.kiv.nlp.ir.trec.my.results.ResultsHelper;
 import org.apache.log4j.Logger;
 import org.apache.lucene.search.BooleanQuery;
 
@@ -25,6 +28,8 @@ public class Index implements Indexer, Searcher {
     private Process preprocessing = new Process();
     private QueryResolver queryResolver;
 
+    private static int MAX_RESULTS = 10000;
+
     public Index(){
         documents = new LinkedHashMap<String, Document>();
         index = new InvertedIndex();
@@ -36,7 +41,6 @@ public class Index implements Indexer, Searcher {
         long start = System.currentTimeMillis();
         for (Document doc: documents) {
             saveDocument(doc);
-
             preprocessing.parseAndIndex(doc, index);
         }
         log.info("Indexing took " + (System.currentTimeMillis() - start) + "ms.");
@@ -51,15 +55,40 @@ public class Index implements Indexer, Searcher {
     }
 
     public List<Result> search(String query) {
-        List<Result> results = new ArrayList<Result>();
+        IWeight weight = new WeightTF_IDF();
+
+
 
         BooleanQuery booleanQuery = preprocessing.parseQuery(query);
 
         HashMap<String, WeightedDocument>  documents = queryResolver.getDocuments(booleanQuery);
 
+        HashMap<String,Float> weightedQuery =  weight.getQueryWeights( preprocessing.parse(query),index);
+        ResultsHelper resultsHelper = new ResultsHelper(index);
 
+        List<Result> results = resultsHelper.getBestResults(weightedQuery,documents);
+        Comparator<Result> cmp = new Comparator<Result>() {
+            public int compare(Result o1, Result o2) {
+                if (o1.getScore() > o2.getScore()) return -1;
+                if (o1.getScore() == o2.getScore()) return 0;
+                return 1;
+            }
+        };
 
-        return results;
+        Collections.sort(results, cmp);
+
+        List<Result> finalResults = new ArrayList<>();
+
+        int max = MAX_RESULTS;
+        if(results.size() < MAX_RESULTS){
+            max = results.size() - 1;
+        }
+
+        for(int i = 0; i < max; i++){
+            finalResults.add(results.get(i));
+        }
+
+        return finalResults;
     }
 
 

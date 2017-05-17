@@ -14,6 +14,8 @@ import org.apache.lucene.search.TermQuery;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -74,5 +76,23 @@ public class Process {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public List<String> parse(String query) {
+        List<String> terms = new ArrayList<>();
+        try {
+            TokenStream tokenStream = czechAnalyzer.tokenStream(null, new StringReader(query));
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+                String token = (tokenStream.getAttribute(CharTermAttribute.class).toString());
+                terms.add(token);
+            }
+            tokenStream.end();
+            tokenStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return terms;
     }
 }
