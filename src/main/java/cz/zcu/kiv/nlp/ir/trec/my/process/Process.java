@@ -40,7 +40,7 @@ public class Process {
             return;
         }
         try {
-            TokenStream tokenStream = czechAnalyzer.tokenStream(null, new StringReader(doc.getText() + " " + doc.getTitle() + " " + doc.getTitle()));
+            TokenStream tokenStream = czechAnalyzer.tokenStream(null, new StringReader(doc.getText()));
             //tokenStream.addAttribute(PositionIncrementAttribute.class);
             //tokenStream.addAttribute(OffsetAttribute.class);
 
@@ -53,6 +53,22 @@ public class Process {
                 //int startOffset = (tokenStream.getAttribute(OffsetAttribute.class)).startOffset();
                 //int endOffset = (tokenStream.getAttribute(OffsetAttribute.class)).endOffset();
 
+            }
+            tokenStream.end();
+            tokenStream.close();
+
+            tokenStream = czechAnalyzer.tokenStream(null, new StringReader(doc.getTitle()));
+            //tokenStream.addAttribute(PositionIncrementAttribute.class);
+            //tokenStream.addAttribute(OffsetAttribute.class);
+
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+
+                String token = (tokenStream.getAttribute(CharTermAttribute.class).toString());
+                invertedIndex.addTitleEntry(token, doc.getId());
+                //index += (tokenStream.getAttribute(PositionIncrementAttribute.class)).getPositionIncrement();
+                //int startOffset = (tokenStream.getAttribute(OffsetAttribute.class)).startOffset();
+                //int endOffset = (tokenStream.getAttribute(OffsetAttribute.class)).endOffset();
             }
             tokenStream.end();
             tokenStream.close();

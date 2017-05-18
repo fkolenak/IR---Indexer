@@ -6,7 +6,9 @@ package cz.zcu.kiv.nlp.ir.trec.data;
 public class ResultImpl extends AbstractResult {
 
 
-
+    public void addWeight(float value){
+        this.setScore((this.getScore() + value)/2);
+    }
 
 
 

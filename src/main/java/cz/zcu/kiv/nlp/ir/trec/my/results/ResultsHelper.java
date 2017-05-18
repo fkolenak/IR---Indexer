@@ -2,12 +2,11 @@ package cz.zcu.kiv.nlp.ir.trec.my.results;
 
 import cz.zcu.kiv.nlp.ir.trec.data.Result;
 import cz.zcu.kiv.nlp.ir.trec.data.ResultImpl;
+import cz.zcu.kiv.nlp.ir.trec.data.structures.DocumentsWrapper;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.InvertedIndex;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.WeightedDocument;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by japan on 17-May-17.
@@ -20,11 +19,11 @@ public class ResultsHelper {
         this.index = index;
     }
 
-    public List<Result> getBestResults(HashMap<String,Float> weightedQuery, HashMap<String, WeightedDocument> documents){
+    public List<Result> getBestResults(HashMap<String, Float> weightedQuery, HashMap<String, WeightedDocument> documents, boolean searchTitles){
         List<Result> results = new ArrayList<>();
 
         for (String docId : documents.keySet()) {
-            float sim = cosineSimilarity(weightedQuery, docId);
+            float sim = cosineSimilarity(weightedQuery, docId, searchTitles);
             ResultImpl result = new ResultImpl();
             result.setDocumentID(docId);
             result.setScore(sim);
@@ -33,12 +32,20 @@ public class ResultsHelper {
         return results;
     }
 
-    private float cosineSimilarity(HashMap<String,Float> weightedQuery, String docId){
+    private float cosineSimilarity(HashMap<String,Float> weightedQuery, String docId, boolean searchTitles){
         float dot = 0, queryLength = 0, docLength = 0;
 
         for(String token : weightedQuery.keySet()){
-            if( index.getDocumentWrapper(token) == null) continue;
-            WeightedDocument doc = index.getDocumentWrapper(token).getDocument(docId);
+            DocumentsWrapper documentsWrapper;
+
+            if(searchTitles){
+                documentsWrapper = index.getTitleDocumentWrapper(token);
+            } else {
+                documentsWrapper = index.getDocumentWrapper(token);
+            }
+
+            if( documentsWrapper == null) continue;
+            WeightedDocument doc = documentsWrapper.getDocument(docId);
             // If term actualy in document
             if(doc != null) {
                 float docWeight = doc.getWeight();
@@ -57,7 +64,29 @@ public class ResultsHelper {
         //return (float) (dot / ((Math.sqrt(queryLength) * Math.sqrt(docLength))));
     }
 
+    /**
+     * Brute force merge
+     */
+    public List<Result> mergeResults(List<Result> resultsTitles, List<Result> resultsText) {
+        List<Result> toAdd = new ArrayList<>();
+
+        for (int i = 0; i < resultsTitles.size(); i++) {
+            boolean discovered = false;
+            Result r = resultsTitles.get(i);
+            for (int j = 0; j < resultsText.size(); j++) {
+                Result res =  resultsText.get(j);
+
+                if(r.equals(resultsText.get(j))){
+                    discovered = true;
+                    res.addWeight(res.getScore());
+                    break;
+                }
+            }
+            if(!discovered) toAdd.add(resultsTitles.get(i));
+        }
+        resultsText.addAll(toAdd);
 
 
-
+        return resultsText;
+    }
 }

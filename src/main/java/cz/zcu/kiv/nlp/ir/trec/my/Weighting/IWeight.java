@@ -41,4 +41,5 @@ public interface IWeight {
      */
     HashMap<String,Float> getQueryWeights(List<String> tokens , InvertedIndex index);
 
-    }
+    float getTitleWeight(DocumentsWrapper documentsWrapper, String docId, InvertedIndex index);
+}

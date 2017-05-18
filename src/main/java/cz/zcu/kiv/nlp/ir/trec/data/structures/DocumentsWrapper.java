@@ -71,6 +71,26 @@ public class DocumentsWrapper {
         }
     }
 
+    public void calculateTitleWeights(InvertedIndex index){
+
+        float total = 0;
+        for(String docId : documents.keySet()) {
+            float value = weight.getTitleWeight(this, docId,index);
+            total += value * value;
+            WeightedDocument w = documents.get(docId);
+            w.setWeight(value);
+            documents.put(docId,w);
+        }
+        total = (float) Math.sqrt(total);
+        // Normalize
+        for(String docId : documents.keySet()) {
+
+            WeightedDocument w = documents.get(docId);
+            w.setWeight(w.getWeight()/total);
+            documents.put(docId,w);
+        }
+    }
+
 
 
     @Override

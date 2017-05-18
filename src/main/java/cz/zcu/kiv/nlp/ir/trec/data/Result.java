@@ -12,4 +12,6 @@ public interface Result {
     int getRank();
 
     String toString(String topic);
+
+    void addWeight(float value);
 }

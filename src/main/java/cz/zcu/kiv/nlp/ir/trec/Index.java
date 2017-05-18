@@ -1,7 +1,6 @@
 package cz.zcu.kiv.nlp.ir.trec;
 
 import cz.zcu.kiv.nlp.ir.trec.data.Document;
-import cz.zcu.kiv.nlp.ir.trec.data.ResultImpl;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.InvertedIndex;
 import cz.zcu.kiv.nlp.ir.trec.data.Result;
 import cz.zcu.kiv.nlp.ir.trec.data.structures.WeightedDocument;
@@ -29,7 +28,7 @@ public class Index implements Indexer, Searcher {
     private Process preprocessing = new Process();
     private QueryResolver queryResolver;
 
-    private static int MAX_RESULTS = 500;
+    private static int MAX_RESULTS = 750;
 
     public Index(){
         documents = new LinkedHashMap<String, Document>();
@@ -61,13 +60,18 @@ public class Index implements Indexer, Searcher {
 
 
         BooleanQuery booleanQuery = preprocessing.parseQuery(query);
-
-        HashMap<String, WeightedDocument>  documents = queryResolver.getDocuments(booleanQuery);
+        HashMap<String, WeightedDocument>  titleDocuments = queryResolver.getDocumentsFromTitle(booleanQuery);
+        HashMap<String, WeightedDocument>  documents = queryResolver.getDocuments(booleanQuery,false);
 
         HashMap<String,Float> weightedQuery =  weight.getQueryWeights( preprocessing.parse(query),index);
         ResultsHelper resultsHelper = new ResultsHelper(index);
 
-        List<Result> results = resultsHelper.getBestResults(weightedQuery,documents);
+        List<Result> resultsTitles = resultsHelper.getBestResults(weightedQuery,titleDocuments, true);
+        List<Result> resultsText = resultsHelper.getBestResults(weightedQuery,documents, false);
+        //resultsTitles.clear();
+        List<Result> results = resultsHelper.mergeResults(resultsTitles,resultsText);
+
+
         Comparator<Result> cmp = new Comparator<Result>() {
             public int compare(Result o1, Result o2) {
                 if (o1.getScore() > o2.getScore()) return -1;

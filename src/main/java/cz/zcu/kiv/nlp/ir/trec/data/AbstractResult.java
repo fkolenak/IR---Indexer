@@ -1,5 +1,8 @@
 package cz.zcu.kiv.nlp.ir.trec.data;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * Created by Tigi on 6.1.2015.
  */
@@ -43,5 +46,25 @@ public abstract class AbstractResult implements Result {
 
     public String toString(String topic) {
         return topic + " Q0 " + documentID + " " + rank + " " + score + " runindex1";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractResult that = (AbstractResult) o;
+
+        return new EqualsBuilder()
+                .append(documentID, that.documentID)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(documentID)
+                .toHashCode();
     }
 }

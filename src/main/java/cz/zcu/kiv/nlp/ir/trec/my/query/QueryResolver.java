@@ -14,11 +14,14 @@ public class QueryResolver {
     private static final Logger log = Logger.getLogger(QueryResolver.class);
     private InvertedIndex index;
 
-    public QueryResolver(InvertedIndex index){
+    public QueryResolver(InvertedIndex index) {
         this.index = index;
     }
 
-    public HashMap<String, WeightedDocument> getDocuments(BooleanQuery parsedQuery){
+    public HashMap<String, WeightedDocument> getDocuments(BooleanQuery parsedQuery, boolean searchTitles){
+
+
+
         HashMap<String, WeightedDocument>  documents = new HashMap<>();
 
 
@@ -28,35 +31,35 @@ public class QueryResolver {
             Query query = clause.getQuery();
 
             if(first){
-                documents.putAll(getDocumentIds(query.toString()));
+                documents.putAll(getDocumentIds(query.toString(), searchTitles));
                 first = false;
                 continue;
             }
 
             if(query.getClass().equals(TermQuery.class)){
                 if(clause.getOccur() == BooleanClause.Occur.MUST){
-                    documents = and(documents,query);
+                    documents = and(documents,query, searchTitles);
                     continue;
                 }
                 if(clause.getOccur() == BooleanClause.Occur.SHOULD){
-                    documents = or(documents,query);
+                    documents = or(documents,query, searchTitles);
                     continue;
                 }
                 if(clause.getOccur() == BooleanClause.Occur.MUST_NOT){
-                    documents = not(documents,query);
+                    documents = not(documents,query, searchTitles);
                 }
 
             } else if(query.getClass().equals(BooleanQuery.class)){
                 if(clause.getOccur() == BooleanClause.Occur.MUST){
-                    documents = and(documents, getDocuments((BooleanQuery) query));
+                    documents = and(documents, getDocuments((BooleanQuery) query, searchTitles));
                     continue;
                 }
                 if(clause.getOccur() == BooleanClause.Occur.SHOULD){
-                    documents = or(documents, getDocuments((BooleanQuery) query));
+                    documents = or(documents, getDocuments((BooleanQuery) query, searchTitles));
                     continue;
                 }
                 if(clause.getOccur() == BooleanClause.Occur.MUST_NOT){
-                    documents = not(documents, getDocuments((BooleanQuery) query));
+                    documents = not(documents, getDocuments((BooleanQuery) query, searchTitles));
                 }
             }
         }
@@ -66,15 +69,22 @@ public class QueryResolver {
 
 
 
-    private HashMap<String, WeightedDocument> getDocumentIds(String token ){
-        if(index.getDocumentWrapper(token) == null){
-            return new HashMap<>();
+    private HashMap<String, WeightedDocument> getDocumentIds(String token, boolean searchTitles){
+        if(searchTitles) {
+            if (index.getTitleDocumentWrapper(token) == null) {
+                return new HashMap<>();
+            }
+            return index.getTitleDocumentWrapper(token).getDocuments();
+        } else {
+            if (index.getDocumentWrapper(token) == null) {
+                return new HashMap<>();
+            }
+            return index.getDocumentWrapper(token).getDocuments();
         }
-        return index.getDocumentWrapper(token).getDocuments();
     }
 
-    private HashMap<String, WeightedDocument> not(HashMap<String, WeightedDocument> documents, Query query) {
-        HashMap<String, WeightedDocument> mustNots = getDocumentIds(query.toString());
+    private HashMap<String, WeightedDocument> not(HashMap<String, WeightedDocument> documents, Query query, boolean searchTitles) {
+        HashMap<String, WeightedDocument> mustNots = getDocumentIds(query.toString(), searchTitles);
 
         if(documents.isEmpty()){
             return documents;
@@ -100,8 +110,8 @@ public class QueryResolver {
         return documents;
     }
 
-    private HashMap<String, WeightedDocument>  or(HashMap<String, WeightedDocument>  documents, Query query) {
-        HashMap<String, WeightedDocument>  docsIds = getDocumentIds(query.toString());
+    private HashMap<String, WeightedDocument>  or(HashMap<String, WeightedDocument> documents, Query query, boolean searchTitles) {
+        HashMap<String, WeightedDocument>  docsIds = getDocumentIds(query.toString(), searchTitles);
 
         if(documents == null ){
             return new HashMap<> (docsIds);
@@ -132,8 +142,8 @@ public class QueryResolver {
 
 
 
-    private HashMap<String, WeightedDocument>  and(HashMap<String, WeightedDocument>  documents, Query query) {
-        HashMap<String, WeightedDocument>  ands = getDocumentIds(query.toString());
+    private HashMap<String, WeightedDocument>  and(HashMap<String, WeightedDocument> documents, Query query, boolean searchTitles) {
+        HashMap<String, WeightedDocument>  ands = getDocumentIds(query.toString(), searchTitles);
 
         if(documents == null || documents.isEmpty()){
             return new HashMap<> ();
@@ -170,4 +180,7 @@ public class QueryResolver {
     }
 
 
+    public HashMap<String,WeightedDocument> getDocumentsFromTitle(BooleanQuery booleanQuery) {
+        return getDocuments(booleanQuery,true);
+    }
 }

@@ -48,6 +48,49 @@ public class WeightTF_IDF implements IWeight{
     }
 
     /**
+     * Gets TF-IDF weight
+     * @param documentsWrapper doc wrapper
+     * @param docId document containing token
+     * @param index index itself
+     * @return tf-idf weight
+     */
+    public float getTitleWeight(DocumentsWrapper documentsWrapper, String docId, InvertedIndex index){
+
+        double idf = getTitleIdf(documentsWrapper, index);
+        double tf = getTitleTf(documentsWrapper,index,docId);
+
+        return  (float) (tf * idf);
+    }
+
+    /**
+     * Gets Inverse Document Frequency part of the equation
+     * @param documentsWrapper document wrapper
+     * @param index index itself
+     * @return idf equation part
+     */
+    private double getTitleIdf(DocumentsWrapper documentsWrapper, InvertedIndex index){
+        if(documentsWrapper == null){
+            return 1.0;
+        }
+        int numberOfDocuments = index.getTotalNumberOfTitleDocuments();
+        int numberOfDocumentsThatContainToken = documentsWrapper.getNumberOfDocuments();
+        return Math.log(((double)numberOfDocuments) / numberOfDocumentsThatContainToken);
+    }
+
+    /**
+     * Gets the Term Frequency part of the equation
+     * @param documentsWrapper document wrapper
+     * @param index index itself
+     * @param documentId document id
+     * @return tf part of the equation
+     */
+    private double getTitleTf(DocumentsWrapper documentsWrapper, InvertedIndex index, String documentId){
+        int tokenOccurrenceInDocument = documentsWrapper.getNumberOfTokensInDocument(documentId);
+        int tokensInDocument = index.getTokensInTitleDocument(documentId);
+        return ((double)tokenOccurrenceInDocument)/tokensInDocument;
+    }
+
+    /**
      * Gets Inverse Document Frequency part of the equation
      * @param documentsWrapper document wrapper
      * @param index index itself
