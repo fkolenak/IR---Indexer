@@ -21,7 +21,6 @@ public class DocumentsWrapper {
     private final HashMap<String, WeightedDocument> documents = new LinkedHashMap<String,  WeightedDocument>();
     //private final List<WeightedDocument> weightedDocuments = new ArrayList<WeightedDocument>();
 
-    // TODO documents as vectors
     public DocumentsWrapper(String docId){
             totalTokens++;
             documents.put(docId,new WeightedDocument());
@@ -57,12 +56,12 @@ public class DocumentsWrapper {
         float total = 0;
         for(String docId : documents.keySet()) {
             float value = weight.getWeight(this, docId,index);
-            total += value;
+            total += value * value;
             WeightedDocument w = documents.get(docId);
             w.setWeight(value);
             documents.put(docId,w);
         }
-
+        total = (float) Math.sqrt(total);
         // Normalize
         for(String docId : documents.keySet()) {
 
@@ -70,18 +69,6 @@ public class DocumentsWrapper {
             w.setWeight(w.getWeight()/total);
             documents.put(docId,w);
         }
-
-
-
-        /*weightedDocuments.sort((o1, o2) -> {
-            if(o1.getWeight() < o2.getWeight() ){
-                return 1;
-            }
-            if(o1.getWeight() > o2.getWeight()){
-                return -1;
-            }
-            return 0;
-        });*/
     }
 
 

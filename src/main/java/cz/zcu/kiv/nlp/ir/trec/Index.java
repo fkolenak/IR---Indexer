@@ -23,12 +23,13 @@ public class Index implements Indexer, Searcher {
     private static final Logger log = Logger.getLogger(Index.class);
 
     private HashMap<String,Document> documents;
+
     private InvertedIndex index;
 
     private Process preprocessing = new Process();
     private QueryResolver queryResolver;
 
-    private static int MAX_RESULTS = 1000;
+    private static int MAX_RESULTS = 500;
 
     public Index(){
         documents = new LinkedHashMap<String, Document>();

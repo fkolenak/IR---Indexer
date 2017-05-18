@@ -40,7 +40,7 @@ public class Process {
             return;
         }
         try {
-            TokenStream tokenStream = czechAnalyzer.tokenStream(null, new StringReader(doc.getText()));
+            TokenStream tokenStream = czechAnalyzer.tokenStream(null, new StringReader(doc.getText() + " " + doc.getTitle() + " " + doc.getTitle()));
             //tokenStream.addAttribute(PositionIncrementAttribute.class);
             //tokenStream.addAttribute(OffsetAttribute.class);
 
